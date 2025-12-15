@@ -15,8 +15,10 @@ declare global {
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
-    // TODO: Implement Better-Auth session validation
-    // For now, we'll use a simple token check
+    // ⚠️ SECURITY WARNING: This is a placeholder implementation for development
+    // TODO: Implement Better-Auth session validation before production deployment
+    // Current implementation bypasses all authentication checks
+    
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -27,10 +29,11 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const token = authHeader.substring(7);
     
     // TODO: Verify token with Better-Auth
-    // For demo purposes, we'll accept any token
-    // In production, validate against Better-Auth session
+    // Example: const session = await betterAuth.validateSession(token);
+    // if (!session) throw ApiError.unauthorized('Invalid session');
     
-    // Mock user data - replace with actual token verification
+    // ⚠️ PLACEHOLDER: Replace with actual Better-Auth token verification
+    // This mock implementation accepts ANY token - DO NOT USE IN PRODUCTION
     req.user = {
       id: 'mock-user-id',
       email: 'abdullah.demo@gmail.com',

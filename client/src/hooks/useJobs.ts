@@ -33,7 +33,8 @@ export function useJob(id: string) {
   return useQuery({
     queryKey: jobKeys.detail(id),
     queryFn: () => jobsService.getJob(id),
-    enabled: !!id,
+    // Only enable if ID exists and appears to be a valid MongoDB ObjectId (24 char hex string)
+    enabled: !!id && id.length === 24 && /^[a-f0-9]{24}$/i.test(id),
   });
 }
 
