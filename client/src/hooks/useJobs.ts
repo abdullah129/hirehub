@@ -1,13 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobsService } from '../services/jobs.service';
 import {
-  Job,
   CreateJobInput,
   UpdateJobInput,
   JobFilters,
   Contact,
   Interview,
-  Note,
 } from '../types/job.types';
 
 // Query keys

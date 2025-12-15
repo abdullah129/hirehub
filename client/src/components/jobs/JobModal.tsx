@@ -4,7 +4,7 @@ import { Tabs } from '../ui/Tabs';
 import { Button } from '../ui/Button';
 import { Avatar } from '../ui/Avatar';
 import { StatusBadge, PriorityDot } from '../ui/Badge';
-import { useJob, useNotes, useContacts, useInterviews, useActivities } from '../../hooks/useJobs';
+import { useJob, useNotes, useContacts, useActivities } from '../../hooks/useJobs';
 import { formatCurrency, formatDate } from '../../utils/format';
 import { MapPin, DollarSign, Calendar, Edit, Trash2 } from 'lucide-react';
 
@@ -18,7 +18,6 @@ export const JobModal: React.FC<JobModalProps> = ({ isOpen, onClose, jobId }) =>
   const { data: job, isLoading } = useJob(jobId);
   const { data: notes = [] } = useNotes(jobId);
   const { data: contacts = [] } = useContacts(jobId);
-  const { data: interviews = [] } = useInterviews(jobId);
   const { data: activities = [] } = useActivities(jobId);
 
   if (!job && !isLoading) return null;

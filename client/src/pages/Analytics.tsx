@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, CardBody } from '../components/ui/Card';
+import { Card, CardBody } from '../components/ui/Card';
 
 export const Analytics: React.FC = () => {
   return (

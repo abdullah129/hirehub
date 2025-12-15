@@ -10,7 +10,6 @@ import {
   Document,
   Activity,
 } from '../types/job.types';
-import { PaginatedResponse } from '../types/api.types';
 
 class JobsService {
   private basePath = '/jobs';

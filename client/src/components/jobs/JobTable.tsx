@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MoreVertical } from 'lucide-react';
-import { Job, JobStatus } from '../../types/job.types';
+import { Job } from '../../types/job.types';
 import { Table } from '../ui/Table';
 import { Avatar } from '../ui/Avatar';
 import { StatusBadge, PriorityDot } from '../ui/Badge';
@@ -106,7 +106,7 @@ export const JobTable: React.FC<JobTableProps> = ({ jobs, isLoading, onJobClick 
     {
       key: 'actions',
       header: 'Actions',
-      render: (job: Job) => (
+      render: (_job: Job) => (
         <button
           onClick={(e) => {
             e.stopPropagation();
