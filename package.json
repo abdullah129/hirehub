@@ -1,0 +1,28 @@
+{
+  "name": "hirehub",
+  "version": "1.0.0",
+  "description": "A full-stack job application tracker for the Pakistani job market",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter client dev\" \"pnpm --filter server dev\"",
+    "dev:client": "pnpm --filter client dev",
+    "dev:server": "pnpm --filter server dev",
+    "build": "pnpm --filter client build && pnpm --filter server build",
+    "db:generate": "pnpm --filter server prisma generate",
+    "db:push": "pnpm --filter server prisma db push",
+    "db:seed": "pnpm --filter server prisma db seed"
+  },
+  "keywords": [
+    "job-tracker",
+    "application-tracker",
+    "react",
+    "nodejs",
+    "mongodb",
+    "typescript"
+  ],
+  "author": "Abdullah",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

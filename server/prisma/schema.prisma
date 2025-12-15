@@ -1,0 +1,310 @@
+// This is your Prisma schema file
+// Using Prisma version < 7 as specified
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum JobStatus {
+  WISHLIST
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFER
+  REJECTED
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+enum LocationType {
+  ONSITE
+  REMOTE
+  HYBRID
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum InterviewType {
+  PHONE
+  VIDEO
+  ONSITE
+  TECHNICAL
+  BEHAVIORAL
+  HR
+  FINAL
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum ActivityType {
+  APPLICATION_SUBMITTED
+  STATUS_CHANGED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_COMPLETED
+  NOTE_ADDED
+  CONTACT_ADDED
+  DOCUMENT_UPLOADED
+  REMINDER_SET
+  OFFER_RECEIVED
+  APPLICATION_REJECTED
+}
+
+enum DocumentType {
+  RESUME
+  COVER_LETTER
+  PORTFOLIO
+  CERTIFICATE
+  OTHER
+}
+
+enum ReminderType {
+  INTERVIEW
+  FOLLOW_UP
+  DEADLINE
+  CUSTOM
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  DISMISSED
+}
+
+// User and Auth Models (Better-Auth compatible)
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String?
+  image     String?
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  jobs         Job[]
+  sessions     Session[]
+  accounts     Account[]
+  verifications Verification[]
+  
+  // Embedded preferences
+  preferences  UserPreferences?
+}
+
+type UserPreferences {
+  theme              String?  // 'light' | 'dark' | 'system'
+  emailNotifications Boolean? @default(true)
+  defaultCurrency    String?  @default("PKR")
+  defaultView        String?  @default("table") // 'table' | 'kanban'
+  reminderLeadTime   Int?     @default(24) // hours before event
+}
+
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([identifier, value])
+  @@index([userId])
+}
+
+// Job Application Model
+model Job {
+  id                  String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String       @db.ObjectId
+  company             String
+  companyLogo         String?
+  position            String
+  description         String?
+  status              JobStatus    @default(WISHLIST)
+  jobType             JobType      @default(FULL_TIME)
+  locationType        LocationType @default(ONSITE)
+  location            String
+  salaryMin           Int?
+  salaryMax           Int?
+  currency            String       @default("PKR")
+  applicationUrl      String?
+  applicationDeadline DateTime?
+  priority            Priority     @default(MEDIUM)
+  tags                String[]
+  skills              String[]
+  notes               String?
+  appliedAt           DateTime?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts   Contact[]
+  interviews Interview[]
+  jobNotes   Note[]
+  documents  Document[]
+  activities Activity[]
+  reminders  Reminder[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Contact Model
+model Contact {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobId     String   @db.ObjectId
+  name      String
+  email     String?
+  phone     String?
+  role      String?
+  linkedIn  String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+// Interview Model
+model Interview {
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  jobId        String          @db.ObjectId
+  title        String
+  type         InterviewType
+  status       InterviewStatus @default(SCHEDULED)
+  scheduledAt  DateTime
+  duration     Int? // minutes
+  location     String?
+  meetingLink  String?
+  interviewers String?
+  notes        String?
+  feedback     String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([scheduledAt])
+}
+
+// Note Model
+model Note {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobId     String   @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+// Document Model
+model Document {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  jobId      String       @db.ObjectId
+  type       DocumentType
+  name       String
+  url        String
+  size       Int?
+  uploadedAt DateTime     @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+// Activity Log Model
+model Activity {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  jobId       String       @db.ObjectId
+  type        ActivityType
+  description String
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([createdAt])
+}
+
+// Reminder Model
+model Reminder {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  jobId     String         @db.ObjectId
+  type      ReminderType
+  title     String
+  message   String?
+  remindAt  DateTime
+  status    ReminderStatus @default(PENDING)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([remindAt])
+  @@index([status])
+}
